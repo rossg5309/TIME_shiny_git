@@ -6,9 +6,10 @@ library(ggplot2)
 ##################################
 ##################################
 ##################################
-header <- dashboardHeader(title = "TIME Data Portal",
-                          titleWidth = 250
-                        )
+header <- dashboardHeader(
+  title = "TIME Data Portal",
+  titleWidth = 250
+)
 ##################################
 ##################################
 ##################################
