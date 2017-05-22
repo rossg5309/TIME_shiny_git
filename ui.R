@@ -8,38 +8,6 @@ library(ggplot2)
 ##################################
 header <- dashboardHeader(title = "TIME Data Portal",
                           titleWidth = 250
-                          
-                          # dropdownMenu(
-                          #   type = "notifications",
-                          #   notificationItem(
-                          #     text = "Added Grey Scale Colors (4/27/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "Data Figures as .eps Added (4/27/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "Data Download Added (4/27/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "Summary Data Added (4/27/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "New color palette (4/26/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "Data points can be added (4/26/17)",
-                          #     status = "success"
-                          #   ),
-                          #   notificationItem(
-                          #     text = "Lineages can now be seperated (4/26/17)",
-                          #     status = "success"
-                          #   )
-                          # )
                         )
 ##################################
 ##################################
