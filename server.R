@@ -252,6 +252,19 @@ shinyServer(function(input, output, session) {
       gID.F4 <- unique(Data.Set$GraphID[Data.Set$Generation == "F4"])
       gID.F6 <- unique(Data.Set$GraphID[Data.Set$Generation == "F6"])
       
+      #Match colors from base data set to the correlated data set
+      if(exists("Data.Set.Correl")){
+        gID.F1.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F1"])
+        gID.F3.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F3"])
+        gID.F4.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F4"])
+        gID.F6.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F6"])
+        
+        gID.F1 <- gID.F1[which(gID.F1 %in% gID.F1.Correl)]
+        gID.F3 <- gID.F3[which(gID.F3 %in% gID.F3.Correl)]
+        gID.F4 <- gID.F4[which(gID.F4 %in% gID.F4.Correl)]
+        gID.F6 <- gID.F6[which(gID.F6 %in% gID.F6.Correl)]
+      }
+      
       #Set Graph Colors based on select groups
       gg.Colors.F1 <- Colors.F1[which(Colors.F1$Group %in% gID.F1),2]
       gg.Colors.F3 <- Colors.F1[which(Colors.F1$Group %in% gID.F3),2]
@@ -649,8 +662,8 @@ shinyServer(function(input, output, session) {
       }
       
       #Debug Output
-      # output$Debug <- renderTable(gF1.Correl.Debug)
-      # output$Debug2 <- renderTable(Data.Set.Correl)
+      # output$Debug <- renderTable()
+      # output$Debug2 <- renderTable()
       
     }
   })
