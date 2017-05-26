@@ -231,21 +231,21 @@ body <- dashboardBody(
           tableOutput("F4.summary.data"),
           downloadButton('dlF4.Summary', "Download F4-F6 Summary Data")
         )
+      ),
+      fluidRow(
+        box(
+          title = "Debug",
+          solidHeader = T,
+          status = "danger",
+          tableOutput("Debug")
+        ),
+        box(
+          title = "Debug 2",
+          solidHeader = T,
+          status = "danger",
+          tableOutput("Debug2")
+        )
       )
-      # fluidRow(
-      #   box(
-      #     title = "Debug",
-      #     solidHeader = T,
-      #     status = "danger",
-      #     tableOutput("Debug")
-      #   ),
-      #   box(
-      #     title = "Debug 2",
-      #     solidHeader = T,
-      #     status = "danger",
-      #     tableOutput("Debug2")
-      #   )
-      # )
     ),
     tabPanel(
       title = "Longitudinal Data",
