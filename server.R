@@ -254,15 +254,23 @@ shinyServer(function(input, output, session) {
       
       #Match colors from base data set to the correlated data set
       if(exists("Data.Set.Correl")){
-        gID.F1.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F1"])
-        gID.F3.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F3"])
-        gID.F4.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F4"])
-        gID.F6.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F6"])
-        
-        gID.F1 <- gID.F1[which(gID.F1 %in% gID.F1.Correl)]
-        gID.F3 <- gID.F3[which(gID.F3 %in% gID.F3.Correl)]
-        gID.F4 <- gID.F4[which(gID.F4 %in% gID.F4.Correl)]
-        gID.F6 <- gID.F6[which(gID.F6 %in% gID.F6.Correl)]
+        if(input$correl.act == TRUE){
+          gID.F1.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F1"])
+          gID.F3.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F3"])
+          gID.F4.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F4"])
+          gID.F6.Correl <- unique(Data.Set.Correl$GraphID[Data.Set.Correl$Generation == "F6"])
+          
+          gID.F1 <- gID.F1[which(gID.F1 %in% gID.F1.Correl)]
+          gID.F3 <- gID.F3[which(gID.F3 %in% gID.F3.Correl)]
+          gID.F4 <- gID.F4[which(gID.F4 %in% gID.F4.Correl)]
+          gID.F6 <- gID.F6[which(gID.F6 %in% gID.F6.Correl)]
+        }
+        if(input$correl.act == FALSE){
+          gID.F1 <- unique(Data.Set$GraphID[Data.Set$Generation == "F1"])
+          gID.F3 <- unique(Data.Set$GraphID[Data.Set$Generation == "F3"])
+          gID.F4 <- unique(Data.Set$GraphID[Data.Set$Generation == "F4"])
+          gID.F6 <- unique(Data.Set$GraphID[Data.Set$Generation == "F6"])
+        }
       }
       
       #Set Graph Colors based on select groups
