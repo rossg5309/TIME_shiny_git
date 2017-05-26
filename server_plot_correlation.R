@@ -28,11 +28,11 @@ gplotFunction.Correl <- function(xDat, yDat, genID = "", sexID = "", ColInput, N
   
   #Begin plotting
   #Set regression data set
-  gM <- ggplot(Data.Plot ,aes(x = Data.Plot[,xDat.Name], y = Data.Plot[,yDat.Name], color = Data.Plot$GraphID))
+  gM <- ggplot(Data.Plot ,aes(x = Data.Plot[,7], y = Data.Plot[,8], color = Data.Plot$GraphID))
   gM <- gM + scale_color_manual(name = "", values = ColInput, labels = NameInput)
   gM <- gM + geom_smooth(method = lm, se = F, linetype = 8)
   #Set point data set
-  gM <- gM + geom_point(mapping = aes(x = Data.Plot[,xDat.Name], y = Data.Plot[,yDat.Name], fill = Data.Plot$GraphID),shape = 21, size = 3, color = "black")
+  gM <- gM + geom_point(mapping = aes(x = Data.Plot[,7], y = Data.Plot[,8], fill = Data.Plot$GraphID),shape = 21, size = 3, color = "black")
   gM <- gM + scale_fill_manual(name = "", values = ColInput, labels = NameInput)
   #Alter Aesthetics
   gM <- gM + theme_graph_correlation

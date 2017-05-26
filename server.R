@@ -434,6 +434,8 @@ shinyServer(function(input, output, session) {
       )
       
       
+      
+      
       #Prepare ANOVA results
       if(input$correl.act == F){
         if("F1" %in% Summary.Data[,"Generation"]){
@@ -647,8 +649,8 @@ shinyServer(function(input, output, session) {
       }
       
       #Debug Output
-      output$Debug <- renderTable(Data.Set)
-      output$Debug2 <- renderTable(Data.Set.Correl)
+      # output$Debug <- renderTable(gF1.Correl.Debug)
+      # output$Debug2 <- renderTable(Data.Set.Correl)
       
     }
   })
