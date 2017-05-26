@@ -96,10 +96,11 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #Update measure selection for correlations based on input dataset
   observe({
     if(!is.null(input$correl.table.sel)){
       if(input$correl.table.sel == ""){
-      } else {
+      } else if (input$correl.act){
         #Obtain the data set
         Data.Set.Correl <- Data.Set.Sel.Correl()
 
