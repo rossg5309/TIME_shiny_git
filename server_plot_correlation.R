@@ -11,11 +11,17 @@ gplotFunction.Correl <- function(xDat, yDat, genID = "", sexID = "", ColInput, N
   xDat.Name <- names(xDat)[7]
   yDat.Name <- names(yDat)[7]
   
-#   xLim <- max(xDat[,xDat.Name])
-#   yLim <- max(yDat[,yDat.Name])
+  if(sexID == ""){
+  } else if (sexID != ""){
+    xDat <- xDat[xDat$Sex == sexID,]
+    yDat <- yDat[yDat$Sex == sexID,]
+  }
   
-  xDat <- xDat[xDat$Sex == sexID,]
-  yDat <- yDat[yDat$Sex == sexID,]
+  if(sexID == ""){
+    sexName <- "Combined Sexe"
+  } else if (sexID != ""){
+    sexName <- sexID
+  }
   
   Data.Plot <- cbind(xDat[,1:7], yDat[,7], xDat[,8])
   names(Data.Plot)[8:9] <- c(names(yDat[7]), names(xDat[8]))
@@ -30,7 +36,7 @@ gplotFunction.Correl <- function(xDat, yDat, genID = "", sexID = "", ColInput, N
   gM <- gM + scale_fill_manual(name = "", values = ColInput, labels = NameInput)
   #Alter Aesthetics
   gM <- gM + theme_graph_correlation
-  gM <- gM + ylab(yDat.Name) + xlab(xDat.Name) + ggtitle(paste(sexID, "s", sep = ""))
+  gM <- gM + ylab(yDat.Name) + xlab(xDat.Name) + ggtitle(paste(sexName, "s", sep = ""))
   gM <-gM + scale_y_continuous(expand = c(0,0), limits = yLim)
   gM <-gM + scale_x_continuous(expand = c(0,0), limits = xLim)
   

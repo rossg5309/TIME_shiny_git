@@ -43,6 +43,12 @@ shinyServer(function(input, output, session) {
     if(input$correl.act == TRUE){
       output$correl.menu <- renderMenu({
         fluidRow(
+          radioButtons(
+            inputId = "correl.sex.sel",
+            label = "Choose Sex:",
+            choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+            inline = TRUE
+          ),
           selectInput(
             inputId <- "correl.table.sel",
             label = "Data Set",
@@ -275,7 +281,7 @@ shinyServer(function(input, output, session) {
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F1",
-          sexID = "Male",
+          sexID = input$correl.sex.sel,
           ColInput = gg.Colors.F1,
           NameInput = gg.Guide.Names.F1,
           xLim = XLimit.Correl,
@@ -285,7 +291,7 @@ shinyServer(function(input, output, session) {
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F3",
-          sexID = "Male",
+          sexID = input$correl.sex.sel,
           ColInput = gg.Colors.F3,
           NameInput = gg.Guide.Names.F3,
           xLim = XLimit.Correl,
@@ -295,7 +301,7 @@ shinyServer(function(input, output, session) {
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F4",
-          sexID = "Male",
+          sexID = input$correl.sex.sel,
           ColInput = gg.Colors.F4,
           NameInput = gg.Guide.Names.F4,
           xLim = XLimit.Correl,
@@ -305,7 +311,7 @@ shinyServer(function(input, output, session) {
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F6",
-          sexID = "Male",
+          sexID = input$correl.sex.sel,
           ColInput = gg.Colors.F6,
           NameInput = gg.Guide.Names.F6,
           xLim = XLimit.Correl,
