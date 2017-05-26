@@ -24,5 +24,7 @@ theme_graph_correlation<-theme(
   legend.position = 'top',
   
   plot.title = element_text(size = 26, face = "bold", hjust = .5),
-  plot.margin = unit(c(.25,.5,.25,.25), "cm")
+  plot.margin = unit(c(.25,.5,.25,.25), "cm"),
+  
+  aspect.ratio = 1
 )
