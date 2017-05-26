@@ -647,7 +647,7 @@ shinyServer(function(input, output, session) {
       }
       
       #Debug Output
-      output$Debug <- renderTable(Measures.All.Correl)
+      # output$Debug <- renderTable(Measures.All.Correl)
       # output$Debug2 <- renderTable(XLimit.Correl)
       
     }
