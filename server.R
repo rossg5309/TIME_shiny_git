@@ -5,19 +5,15 @@ library(ggplot2)
 library(RMySQL)
 library(lsr)
 library(car)
-# library(grid)
-# library(gridExtra)
 
 #Source local scripts
-source(file = "server_plot_theme.R", local = T)
-# source(file = "server_plot_function.R", local = T)
+#source(file = "server_plot_theme.R", local = T)
 source(file = "server_plot_function_colors_dots.R", local = T)
 source(file = "server_SQL_query.R", local = T)
 source(file = "server_ANOVA.R", local = T)
 source(file = "server_data_cull.R", local = T)
 source(file = "server_plot_correlation.R", local = T)
 source(file = "server_plot_correlation_theme.R", local = T)
-#source(file = "server_ggmulti.R", local = T)
 
 #Find available tables on the database
 Table.List <- SQL_db_query(query = "SHOW TABLES")
@@ -61,8 +57,7 @@ shinyServer(function(input, output, session) {
           )
         )
       })
-    }
-    if(input$correl.act == FALSE) {
+    } else {
       output$correl.menu <- renderMenu({
         fluidRow()
       })
@@ -101,20 +96,19 @@ shinyServer(function(input, output, session) {
     }
   })
   
-  #Update measures selections based on input dataset for correlations
   observe({
     if(!is.null(input$correl.table.sel)){
       if(input$correl.table.sel == ""){
       } else {
         #Obtain the data set
         Data.Set.Correl <- Data.Set.Sel.Correl()
-        
+
         #Find the relevant columns for graphing
         Col.Class<-lapply(Data.Set.Correl, class)
         Col.Data<-min(which(Col.Class == 'numeric' | Col.Class == 'integer'))
         Col.Use<-c(Col.Data:ncol(Data.Set.Correl))
         Measures.All.Correl<-names(Data.Set.Correl)[Col.Use]
-        
+
         #Update the measures selection choices
         updateSelectInput(
           session,
@@ -646,8 +640,8 @@ shinyServer(function(input, output, session) {
       }
       
       #Debug Output
-      output$Debug <- renderTable(YLimit.Correl)
-      output$Debug2 <- renderTable(XLimit.Correl)
+      output$Debug <- renderTable(Measures.All.Correl)
+      # output$Debug2 <- renderTable(XLimit.Correl)
       
     }
   })
