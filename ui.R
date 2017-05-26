@@ -97,16 +97,14 @@ body <- dashboardBody(
     tabPanel(
       title = "Behavioral Data",
       fluidRow(
-        fluidRow(
-          box(title = "F1 Generation",
-              solidHeader = T,
-              status = "primary",
-              plotOutput("F1.Plot")),
-          box(title = "F3 Generation",
-              solidHeader = T,
-              status = "primary",
-              plotOutput("F3.Plot"))
-        )
+        box(title = "F1 Generation",
+            solidHeader = T,
+            status = "primary",
+            plotOutput("F1.Plot", height = "500px")),
+        box(title = "F3 Generation",
+            solidHeader = T,
+            status = "primary",
+            plotOutput("F3.Plot", height = "500px"))
       ),
       fluidRow(
         tabBox(
@@ -162,11 +160,11 @@ body <- dashboardBody(
         box(title = "F4 Generation",
             solidHeader = T,
             status = "primary",
-            plotOutput("F4.Plot")),
+            plotOutput("F4.Plot", height = "500px")),
         box(title = "F6 Generation",
             solidHeader = T,
             status = "primary",
-            plotOutput("F6.Plot"))
+            plotOutput("F6.Plot", height = "500px"))
       ),
       fluidRow(
         tabBox(
