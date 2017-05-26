@@ -47,7 +47,7 @@ shinyServer(function(input, output, session) {
             inputId = "correl.sex.sel",
             label = "Choose Sex:",
             choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
-            inline = TRUE
+            inline = FALSE
           ),
           selectInput(
             inputId <- "correl.table.sel",
