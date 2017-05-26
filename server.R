@@ -5,18 +5,25 @@ library(ggplot2)
 library(RMySQL)
 library(lsr)
 library(car)
+# library(grid)
+# library(gridExtra)
 
 #Source local scripts
 source(file = "server_plot_theme.R", local = T)
-source(file = "server_plot_function.R", local = T)
+# source(file = "server_plot_function.R", local = T)
 source(file = "server_plot_function_colors_dots.R", local = T)
 source(file = "server_SQL_query.R", local = T)
 source(file = "server_ANOVA.R", local = T)
+source(file = "server_data_cull.R", local = T)
+source(file = "server_plot_correlation.R", local = T)
+source(file = "server_plot_correlation_theme.R", local = T)
+#source(file = "server_ggmulti.R", local = T)
+
+#Find available tables on the database
+Table.List <- SQL_db_query(query = "SHOW TABLES")
 
 #Begin the shiny sever session
 shinyServer(function(input, output, session) {
-  #Find available tables on the database
-  Table.List <- SQL_db_query(query = "SHOW TABLES")
   
   #Update Data Set selection input
   updateSelectInput(
@@ -35,6 +42,43 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #Render Correlations Menu and send to UI
+  observe({
+    if(input$correl.act == TRUE){
+      output$correl.menu <- renderMenu({
+        fluidRow(
+          selectInput(
+            inputId <- "correl.table.sel",
+            label = "Data Set",
+            choices = Table.List[[1]],
+            selected = Table.List[[1]][1]
+          ),
+          selectInput(
+            inputId <- "correl.measure.sel",
+            label = "Measure",
+            choices = "",
+            selected = ""
+          )
+        )
+      })
+    }
+    if(input$correl.act == FALSE) {
+      output$correl.menu <- renderMenu({
+        fluidRow()
+      })
+    }
+  })
+  
+  #Retrieve the data set for correlations
+  Data.Set.Sel.Correl <- reactive({
+    if(is.null(input$correl.table.sel)){
+    } 
+    if(!is.null(input$correl.table.sel)){
+      #Retrieve the dataset
+      Data.Set.Sel.Correl <- SQL_db_query(sprintf("SELECT * FROM `%s`", input$correl.table.sel))
+    }
+  })
+  
   #Update measures selections based on input dataset
   observe({
     if(input$table.sel == ""){
@@ -46,8 +90,7 @@ shinyServer(function(input, output, session) {
       Col.Class<-lapply(Data.Set, class)
       Col.Data<-min(which(Col.Class == 'numeric' | Col.Class == 'integer'))
       Col.Use<-c(Col.Data:ncol(Data.Set))
-      Col.Names<-names(Data.Set)[Col.Use]
-      Measures.All <- Col.Names
+      Measures.All<-names(Data.Set)[Col.Use]
       
       #Update the measures selection choices
       updateSelectInput(
@@ -58,36 +101,60 @@ shinyServer(function(input, output, session) {
     }
   })
   
+  #Update measures selections based on input dataset for correlations
+  observe({
+    if(!is.null(input$correl.table.sel)){
+      if(input$correl.table.sel == ""){
+      } else {
+        #Obtain the data set
+        Data.Set.Correl <- Data.Set.Sel.Correl()
+        
+        #Find the relevant columns for graphing
+        Col.Class<-lapply(Data.Set.Correl, class)
+        Col.Data<-min(which(Col.Class == 'numeric' | Col.Class == 'integer'))
+        Col.Use<-c(Col.Data:ncol(Data.Set.Correl))
+        Measures.All.Correl<-names(Data.Set.Correl)[Col.Use]
+        
+        #Update the measures selection choices
+        updateSelectInput(
+          session,
+          inputId =  "correl.measure.sel",
+          choices = Measures.All.Correl
+        )
+      }
+    }
+  })
   
   #Begin manipulation of the data and graphing
   observe({
+    #Determine and Save Color Scheme for F1-F3
+    Colors.F1.Sel <- reactive({
+      Col.Val <- input$col.sel
+      if(Col.Val == "color"){
+        Colors.F1 <- read.csv(file = "F1_Color_Pal.csv", colClasses = "character")
+      } else if(Col.Val == "grey"){
+        Colors.F1 <- read.csv(file = "F1_Color_Pal_Grey.csv", colClasses = "character")
+      } else {
+      }
+    })
+    
+    Colors.F1 <- Colors.F1.Sel()
+    
+    #Determine and Save Color Scheme for F4-F6
+    Colors.F4.Sel <- reactive({
+      Col.Val <- input$col.sel
+      if(Col.Val == "color"){
+        Colors.F4 <- read.csv(file = "F4_Color_Pal.csv", colClasses = "character")
+      } else if(Col.Val == "grey"){
+        Colors.F4 <- read.csv(file = "F4_Color_Pal_Grey.csv", colClasses = "character")
+      } else {
+      }
+    })
+    
+    Colors.F4 <- Colors.F4.Sel()
+    
+    #Beging Data Culling and Manipulation
     if(input$measure.sel %in% names(Data.Set.Sel())){
-      #Determine and Save Color Scheme for F1-F3
-      Colors.F1.Sel <- reactive({
-        Col.Val <- input$col.sel
-        if(Col.Val == "color"){
-          Colors.F1 <- read.csv(file = "F1_Color_Pal.csv", colClasses = "character")
-        } else if(Col.Val == "grey"){
-          Colors.F1 <- read.csv(file = "F1_Color_Pal_Grey.csv", colClasses = "character")
-        } else {
-        }
-      })
-
-      Colors.F1 <- Colors.F1.Sel()
-
-      #Determine and Save Color Scheme for F4-F6
-      Colors.F4.Sel <- reactive({
-        Col.Val <- input$col.sel
-        if(Col.Val == "color"){
-          Colors.F4 <- read.csv(file = "F4_Color_Pal.csv", colClasses = "character")
-        } else if(Col.Val == "grey"){
-          Colors.F4 <- read.csv(file = "F4_Color_Pal_Grey.csv", colClasses = "character")
-        } else {
-        }
-      })
-
-      Colors.F4 <- Colors.F4.Sel()
-      
       #Save Data set for Download
       Data.Set.dl <- Data.Set.Sel()
       
@@ -102,6 +169,25 @@ shinyServer(function(input, output, session) {
       if(input$lineage.sel == ""){
       } else if(input$lineage.sel != ""){
         Data.Set <- Data.Set[Data.Set$Lineage == input$lineage.sel | Data.Set$Lineage == "F1",]
+      }
+      
+      ##############################
+      ########Correlations##########
+      ##############################
+      if(is.null(input$correl.measure.sel)){
+      } else if(input$correl.measure.sel %in% names(Data.Set.Sel.Correl())){
+        #Determine measure based on selection and begin processing
+        Cur.Measure.Sel.Correl <- input$correl.measure.sel
+        
+        Cur.Measure.Correl <- Data.Set.Sel.Correl()[,Cur.Measure.Sel.Correl]
+        Data.Set.Correl <- cbind(Data.Set.Sel.Correl()[,1:6], as.numeric(Cur.Measure.Correl))
+        names(Data.Set.Correl)[7] <- input$correl.measure.sel
+        
+        #Cull data set based on lineage input
+        if(input$lineage.sel == ""){
+        } else if(input$lineage.sel != ""){
+          Data.Set.Correl <- Data.Set.Correl[Data.Set.Correl$Lineage == input$lineage.sel | Data.Set.Correl$Lineage == "F1",]
+        }
       }
       
       #Rename groups for graphing order
@@ -122,40 +208,116 @@ shinyServer(function(input, output, session) {
       #Coerce Graphind ID to factor
       Data.Set$GraphID <- as.factor(Data.Set$GraphID)
       
+      #Cull data sets based on input
+      Data.Set <- Measure.Cull(Data.Set, input$groups.sel.F1, input$groups.sel.F4)
+      
+      if(exists("Data.Set.Correl")){
+        #Rename groups for graphing order
+        Data.Set.Correl$GraphID<-NA
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == '6% DMSO')] <- '1_6% DMSO'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == '100% DMSO')] <- '2_100% DMSO'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'Estradiol')] <- '3_ESTRADIOL'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'A1221')] <- '4_A1221'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'Low Vin')] <- '5_LOW VIN'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'High Vin')] <- '6_HIGH VIN'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'DMSO')] <- '7_DMSO'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'A1221/A1221')] <- '8_A1221/A1221'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'A1221/Vin')] <- '9_A1221/VIN'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'Vin/Vin')] <- 'X10_VIN/VIN'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'Vin/A1221')] <- 'X11_VIN/A1221'
+        Data.Set.Correl$GraphID[which(Data.Set.Correl$Treatment == 'Flutamide')] <- 'X12_Flutamide'
+        
+        #Coerce Graphind ID to factor
+        Data.Set.Correl$GraphID <- as.factor(Data.Set.Correl$GraphID)
+        
+        #Cull data sets based on input
+        Data.Set.Correl <- Measure.Cull(Data.Set.Correl, input$groups.sel.F1, input$groups.sel.F4)
+      }
+      
       #Set Y-axis label
       Graph.Measure <- input$measure.sel
       YAxis.Lab <- input$measure.sel
       
-      #Begin selection of groups for processing
-      #Create Template for culled data insertion
-      Data.Set.Temp <- matrix(data = NA, nrow = 1, ncol = ncol(Data.Set))
-      Data.Set.Temp <- data.frame(Data.Set.Temp)
-      names(Data.Set.Temp) <- names(Data.Set)
-      
-      #Cull Groups based on input and provide for graphing
-      Data.Set.Rev <- reactive({
-        #Determine groups wanted in graphing
-        F1.Treatment.Sel <- c(input$groups.sel.F1, input$groups.sel.F4)
-
-        ##Build new data set with the groups specified
-        for(i in 1:length(F1.Treatment.Sel)){
-          Data.Set.Temp <- rbind(Data.Set.Temp, Data.Set[Data.Set$Treatment == F1.Treatment.Sel[i],])
-        }
-        return(Data.Set.Temp)
-      })
-
-      #Replace the active data set with culled data set
-      Data.Set <- Data.Set.Rev()
-      Data.Set <- Data.Set[-1,]
+      #Set Y-axis label for correlation
+      Graph.Measure.Correl <- input$correl.measure.sel
+      YAxis.Lab.Correl <- input$correl.measure.sel
       
       #Save data set for download output
       Measure.Set.dl <- Data.Set
       
-      #Replace data set with NAs removed
-      Data.Set <- Data.Set[rowSums(is.na(Data.Set[,]))==0,]
-
-      #
-
+      #Set group names per generation
+      gID.F1 <- unique(Data.Set$GraphID[Data.Set$Generation == "F1"])
+      gID.F3 <- unique(Data.Set$GraphID[Data.Set$Generation == "F3"])
+      gID.F4 <- unique(Data.Set$GraphID[Data.Set$Generation == "F4"])
+      gID.F6 <- unique(Data.Set$GraphID[Data.Set$Generation == "F6"])
+      
+      #Set Graph Colors based on select groups
+      gg.Colors.F1 <- Colors.F1[which(Colors.F1$Group %in% gID.F1),2]
+      gg.Colors.F3 <- Colors.F1[which(Colors.F1$Group %in% gID.F3),2]
+      gg.Colors.F4 <- Colors.F4[which(Colors.F4$Group %in% gID.F4),2]
+      gg.Colors.F6 <- Colors.F4[which(Colors.F4$Group %in% gID.F6),2]
+      
+      #Set Graph Legend names to replace coded ones
+      gg.Guide.Names.F1 <- Colors.F1[which(Colors.F1$Group %in% gID.F1),3]
+      gg.Guide.Names.F3 <- Colors.F1[which(Colors.F1$Group %in% gID.F3),3]
+      gg.Guide.Names.F4 <- Colors.F4[which(Colors.F4$Group %in% gID.F4),3]
+      gg.Guide.Names.F6 <- Colors.F4[which(Colors.F4$Group %in% gID.F6),3]
+      
+      #Build Correlation Graphs
+      if(exists("Data.Set.Correl")){
+        #Set Correlation Graph Limits
+        YLimit.Correl <- c(
+          min(Data.Set.Correl[,input$correl.measure.sel], na.rm = T) - .1*min(Data.Set.Correl[,input$correl.measure.sel], na.rm = T),
+          max(Data.Set.Correl[,input$correl.measure.sel], na.rm = T) + .1*max(Data.Set.Correl[,input$correl.measure.sel], na.rm = T)
+        )
+        XLimit.Correl <- c(
+          min(Data.Set[,input$measure.sel], na.rm = T) - .1*min(Data.Set[,input$measure.sel], na.rm = T),
+          max(Data.Set[,input$measure.sel], na.rm = T) + .1*max(Data.Set[,input$measure.sel], na.rm = T)
+        )
+        
+        #Build Figures
+        gF1.Correl <- gplotFunction.Correl(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F1",
+          sexID = "Male",
+          ColInput = gg.Colors.F1,
+          NameInput = gg.Guide.Names.F1,
+          xLim = XLimit.Correl,
+          yLim = YLimit.Correl
+        )
+        gF3.Correl <- gplotFunction.Correl(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F3",
+          sexID = "Male",
+          ColInput = gg.Colors.F3,
+          NameInput = gg.Guide.Names.F3,
+          xLim = XLimit.Correl,
+          yLim = YLimit.Correl
+        )
+        gF4.Correl <- gplotFunction.Correl(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F4",
+          sexID = "Male",
+          ColInput = gg.Colors.F4,
+          NameInput = gg.Guide.Names.F4,
+          xLim = XLimit.Correl,
+          yLim = YLimit.Correl
+        )
+        gF6.Correl <- gplotFunction.Correl(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F6",
+          sexID = "Male",
+          ColInput = gg.Colors.F6,
+          NameInput = gg.Guide.Names.F6,
+          xLim = XLimit.Correl,
+          yLim = YLimit.Correl
+        )
+      }
+      
       ##Begin summarization of data set
       #Add group means
       Summary.Data<-aggregate(
@@ -224,24 +386,6 @@ shinyServer(function(input, output, session) {
       }
       
       
-      #Set group names per generation
-      gID.F1 <- unique(Data.Set$GraphID[Data.Set$Generation == "F1"])
-      gID.F3 <- unique(Data.Set$GraphID[Data.Set$Generation == "F3"])
-      gID.F4 <- unique(Data.Set$GraphID[Data.Set$Generation == "F4"])
-      gID.F6 <- unique(Data.Set$GraphID[Data.Set$Generation == "F6"])
-      
-      #Set Graph Colors based on select groups
-      gg.Colors.F1 <- Colors.F1[which(Colors.F1$Group %in% gID.F1),2]
-      gg.Colors.F3 <- Colors.F1[which(Colors.F1$Group %in% gID.F3),2]
-      gg.Colors.F4 <- Colors.F4[which(Colors.F4$Group %in% gID.F4),2]
-      gg.Colors.F6 <- Colors.F4[which(Colors.F4$Group %in% gID.F6),2]
-      
-      #Set Graph Legend names to replace coded ones
-      gg.Guide.Names.F1 <- Colors.F1[which(Colors.F1$Group %in% gID.F1),3]
-      gg.Guide.Names.F3 <- Colors.F1[which(Colors.F1$Group %in% gID.F3),3]
-      gg.Guide.Names.F4 <- Colors.F4[which(Colors.F4$Group %in% gID.F4),3]
-      gg.Guide.Names.F6 <- Colors.F4[which(Colors.F4$Group %in% gID.F6),3]
-      
       #Build Summary Data Tables for download
       F1.summary.data <- Summary.Data[Summary.Data$Generation == "F1" | Summary.Data$Generation == "F3",]
       F4.summary.data <- Summary.Data[Summary.Data$Generation == "F4" | Summary.Data$Generation == "F6",]
@@ -290,94 +434,93 @@ shinyServer(function(input, output, session) {
       
       
       #Prepare ANOVA results
-      if("F1" %in% Summary.Data[,"Generation"]){
-        if(0 %in% Summary.Data[Summary.Data$Generation == "F1","SD"]){
-        } else {
-          AOV.F1 <- ANOVA.shiny(
-            Data.Org = Data.Set,
-            genID = "F1",
-            sexID = input$f1.sex.sel,
-            Measure = input$measure.sel,
-            Factor1 = "Sex",
-            Factor2 = "Treatment",
-            Min.Count = Min.Group.N.F1
-          )
-          if(input$f1.sex.sel == ""){
-            AOV.F1.anova <- AOV.F1[-4, c(1,5,6,10)]
-            AOV.F1.diag <- AOV.F1[1, c(8,9)]
-          }
-          if(input$f1.sex.sel != ""){
-            AOV.F1.anova <- AOV.F1[-2, c(1,5,6,10)]
-            AOV.F1.diag <- AOV.F1[1, c(8,9)]
-          }
-        }
-      }
-      
-      if("F3" %in% Summary.Data[,"Generation"]){
-        if(0 %in% Summary.Data[Summary.Data$Generation == "F3","SD"]){
-        } else {
-          AOV.F3 <- ANOVA.shiny(
-            Data.Org = Data.Set,
-            genID = "F3",
-            sexID = input$f3.sex.sel,
-            Measure = input$measure.sel,
-            Factor1 = "Sex",
-            Factor2 = "Treatment",
-            Min.Count = Min.Group.N.F3
-          )
-          if(input$f3.sex.sel == ""){
-            AOV.F3.anova <- AOV.F3[-4, c(1,5,6,10)]
-            AOV.F3.diag <- AOV.F3[1, c(8,9)]
-          }
-          if(input$f3.sex.sel != ""){
-            AOV.F3.anova <- AOV.F3[-2, c(1,5,6,10)]
-            AOV.F3.diag <- AOV.F3[1, c(8,9)]
+      if(input$correl.act == F){
+        if("F1" %in% Summary.Data[,"Generation"]){
+          if(0 %in% Summary.Data[Summary.Data$Generation == "F1","SD"]){
+          } else {
+            AOV.F1 <- ANOVA.shiny(
+              Data.Org = Data.Set,
+              genID = "F1",
+              sexID = input$f1.sex.sel,
+              Measure = input$measure.sel,
+              Factor1 = "Sex",
+              Factor2 = "Treatment",
+              Min.Count = Min.Group.N.F1
+            )
+            if(input$f1.sex.sel == ""){
+              AOV.F1.anova <- AOV.F1[-4, c(1,5,6,10)]
+              AOV.F1.diag <- AOV.F1[1, c(8,9)]
+            }
+            if(input$f1.sex.sel != ""){
+              AOV.F1.anova <- AOV.F1[-2, c(1,5,6,10)]
+              AOV.F1.diag <- AOV.F1[1, c(8,9)]
+            }
           }
         }
-      }
-      
-      if("F4" %in% Summary.Data[,"Generation"]){
-        if(0 %in% Summary.Data[Summary.Data$Generation == "F4","SD"]){
-        } else {
-          AOV.F4 <- ANOVA.shiny(
-            Data.Org = Data.Set,
-            genID = "F4",
-            sexID = input$f4.sex.sel,
-            Measure = input$measure.sel,
-            Factor1 = "Sex",
-            Factor2 = "Treatment",
-            Min.Count = Min.Group.N.F4
-          )
-          if(input$f4.sex.sel == ""){
-            AOV.F4.anova <- AOV.F4[-4, c(1,5,6,10)]
-            AOV.F4.diag <- AOV.F4[1, c(8,9)]
-          }
-          if(input$f4.sex.sel != ""){
-            AOV.F4.anova <- AOV.F4[-2, c(1,5,6,10)]
-            AOV.F4.diag <- AOV.F4[1, c(8,9)]
+        if("F3" %in% Summary.Data[,"Generation"]){
+          if(0 %in% Summary.Data[Summary.Data$Generation == "F3","SD"]){
+          } else {
+            AOV.F3 <- ANOVA.shiny(
+              Data.Org = Data.Set,
+              genID = "F3",
+              sexID = input$f3.sex.sel,
+              Measure = input$measure.sel,
+              Factor1 = "Sex",
+              Factor2 = "Treatment",
+              Min.Count = Min.Group.N.F3
+            )
+            if(input$f3.sex.sel == ""){
+              AOV.F3.anova <- AOV.F3[-4, c(1,5,6,10)]
+              AOV.F3.diag <- AOV.F3[1, c(8,9)]
+            }
+            if(input$f3.sex.sel != ""){
+              AOV.F3.anova <- AOV.F3[-2, c(1,5,6,10)]
+              AOV.F3.diag <- AOV.F3[1, c(8,9)]
+            }
           }
         }
-      }
-      
-      if("F6" %in% Summary.Data[,"Generation"]){
-        if(0 %in% Summary.Data[Summary.Data$Generation == "F6","SD"]){
-        } else {
-          AOV.F6 <- ANOVA.shiny(
-            Data.Org = Data.Set,
-            genID = "F6",
-            sexID = input$f6.sex.sel,
-            Measure = input$measure.sel,
-            Factor1 = "Sex",
-            Factor2 = "Treatment",
-            Min.Count = Min.Group.N.F6
-          )
-          if(input$f6.sex.sel == ""){
-            AOV.F6.anova <- AOV.F6[-4, c(1,5,6,10)]
-            AOV.F6.diag <- AOV.F6[1, c(8,9)]
+        if("F4" %in% Summary.Data[,"Generation"]){
+          if(0 %in% Summary.Data[Summary.Data$Generation == "F4","SD"]){
+          } else {
+            AOV.F4 <- ANOVA.shiny(
+              Data.Org = Data.Set,
+              genID = "F4",
+              sexID = input$f4.sex.sel,
+              Measure = input$measure.sel,
+              Factor1 = "Sex",
+              Factor2 = "Treatment",
+              Min.Count = Min.Group.N.F4
+            )
+            if(input$f4.sex.sel == ""){
+              AOV.F4.anova <- AOV.F4[-4, c(1,5,6,10)]
+              AOV.F4.diag <- AOV.F4[1, c(8,9)]
+            }
+            if(input$f4.sex.sel != ""){
+              AOV.F4.anova <- AOV.F4[-2, c(1,5,6,10)]
+              AOV.F4.diag <- AOV.F4[1, c(8,9)]
+            }
           }
-          if(input$f6.sex.sel != ""){
-            AOV.F6.anova <- AOV.F6[-2, c(1,5,6,10)]
-            AOV.F6.diag <- AOV.F6[1, c(8,9)]
+        }
+        if("F6" %in% Summary.Data[,"Generation"]){
+          if(0 %in% Summary.Data[Summary.Data$Generation == "F6","SD"]){
+          } else {
+            AOV.F6 <- ANOVA.shiny(
+              Data.Org = Data.Set,
+              genID = "F6",
+              sexID = input$f6.sex.sel,
+              Measure = input$measure.sel,
+              Factor1 = "Sex",
+              Factor2 = "Treatment",
+              Min.Count = Min.Group.N.F6
+            )
+            if(input$f6.sex.sel == ""){
+              AOV.F6.anova <- AOV.F6[-4, c(1,5,6,10)]
+              AOV.F6.diag <- AOV.F6[1, c(8,9)]
+            }
+            if(input$f6.sex.sel != ""){
+              AOV.F6.anova <- AOV.F6[-2, c(1,5,6,10)]
+              AOV.F6.diag <- AOV.F6[1, c(8,9)]
+            }
           }
         }
       }
@@ -463,15 +606,9 @@ shinyServer(function(input, output, session) {
         }
       )
       
+      #Deliver files to download buttons
       outputOptions(output, 'dltotal.data', suspendWhenHidden=FALSE)
       outputOptions(output, 'dltotal.measure', suspendWhenHidden=FALSE)
-      
-      #Render graphs for export to UI
-      #output$F1.Plot <- renderPlot(gF1p)
-      output$F1.Plot <- renderPlot(gF1)
-      output$F3.Plot <- renderPlot(gF3)
-      output$F4.Plot <- renderPlot(gF4)
-      output$F6.Plot <- renderPlot(gF6)
       
       #Render ANOVA table and diag outputs
       output$f1.anova <- renderTable(AOV.F1.anova)
@@ -486,10 +623,32 @@ shinyServer(function(input, output, session) {
       #Render summary tables for output to UI
       output$F1.summary.data <- renderTable(F1.summary.data)
       output$F4.summary.data <- renderTable(F4.summary.data)
-
+      
+      if(input$correl.act == F) {
+        output$F1.Plot <- renderPlot(gF1)
+        output$F3.Plot <- renderPlot(gF3)
+        output$F4.Plot <- renderPlot(gF4)
+        output$F6.Plot <- renderPlot(gF6)
+      }
+      if(input$correl.act == T) {
+        if(exists("gF1.Correl")) {
+          output$F1.Plot <- renderPlot(gF1.Correl)
+        }
+        if(exists("gF3.Correl")) {
+          output$F3.Plot <- renderPlot(gF3.Correl)
+        }
+        if(exists("gF4.Correl")) {
+          output$F4.Plot <- renderPlot(gF4.Correl)
+        }
+        if(exists("gF6.Correl")) {
+          output$F6.Plot <- renderPlot(gF6.Correl)
+        }
+      }
+      
       #Debug Output
-#       output$Debug <- renderTable(AOV.F1.M.anova)
-#       output$Debug2 <- renderTable(AOV.F1.M.diag)
+      output$Debug <- renderTable(YLimit.Correl)
+      output$Debug2 <- renderTable(XLimit.Correl)
+      
     }
   })
 })

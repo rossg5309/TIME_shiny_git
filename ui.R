@@ -6,9 +6,39 @@ library(ggplot2)
 ##################################
 ##################################
 ##################################
-header <- dashboardHeader(
-  title = "TIME Data Portal",
-  titleWidth = 250
+header <- dashboardHeader(title = "TIME Data Portal",
+                          titleWidth = 250
+                          # dropdownMenu(
+                          #   type = "notifications",
+                          #   notificationItem(
+                          #     text = "Added Grey Scale Colors (4/27/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "Data Figures as .eps Added (4/27/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "Data Download Added (4/27/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "Summary Data Added (4/27/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "New color palette (4/26/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "Data points can be added (4/26/17)",
+                          #     status = "success"
+                          #   ),
+                          #   notificationItem(
+                          #     text = "Lineages can now be seperated (4/26/17)",
+                          #     status = "success"
+                          #   )
+                          # )
 )
 ##################################
 ##################################
@@ -75,6 +105,15 @@ sidebar <- dashboardSidebar(
       fluidRow(
         downloadButton('dltotal.measure', "Download Measure Data")
       )
+    ),
+    menuItem(
+      "Correlations",
+      tabName = "correlmenu",
+      icon = icon("line-chart"),
+      fluidRow(
+        checkboxInput("correl.act", label = "Activate Correlations", value = FALSE)
+      ),
+      menuItemOutput("correl.menu")
     )
   )
 )
@@ -88,14 +127,16 @@ body <- dashboardBody(
     tabPanel(
       title = "Behavioral Data",
       fluidRow(
-        box(title = "F1 Generation",
-            solidHeader = T,
-            status = "primary",
-            plotOutput("F1.Plot")),
-        box(title = "F3 Generation",
-            solidHeader = T,
-            status = "primary",
-            plotOutput("F3.Plot"))
+        fluidRow(
+          box(title = "F1 Generation",
+              solidHeader = T,
+              status = "primary",
+              plotOutput("F1.Plot")),
+          box(title = "F3 Generation",
+              solidHeader = T,
+              status = "primary",
+              plotOutput("F3.Plot"))
+        )
       ),
       fluidRow(
         tabBox(
@@ -127,22 +168,22 @@ body <- dashboardBody(
           width = 6,
           tabPanel("Download", downloadButton('dlgF3.plot', "Download F3 Plot (.eps)")),
           tabPanel("ANOVA",
-            fluidRow(
-              column(12, align = "center",
-                     radioButtons(
-                       inputId = "f3.sex.sel",
-                       label = "Choose Sex:",
-                       choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
-                       inline = TRUE
+                   fluidRow(
+                     column(12, align = "center",
+                            radioButtons(
+                              inputId = "f3.sex.sel",
+                              label = "Choose Sex:",
+                              choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+                              inline = TRUE
+                            )
                      )
-              )
-            ),
-            fluidRow(
-              tableOutput("f3.anova")
-            ),
-            fluidRow(
-              tableOutput("f3.diag")
-            )
+                   ),
+                   fluidRow(
+                     tableOutput("f3.anova")
+                   ),
+                   fluidRow(
+                     tableOutput("f3.diag")
+                   )
           ),
           side = "left"
         )
@@ -220,21 +261,21 @@ body <- dashboardBody(
           tableOutput("F4.summary.data"),
           downloadButton('dlF4.Summary', "Download F4-F6 Summary Data")
         )
+      ),
+      fluidRow(
+        box(
+          title = "Debug",
+          solidHeader = T,
+          status = "danger",
+          tableOutput("Debug")
+        ),
+        box(
+          title = "Debug 2",
+          solidHeader = T,
+          status = "danger",
+          tableOutput("Debug2")
+        )
       )
-#       fluidRow(
-#         box(
-#           title = "Debug",
-#           solidHeader = T,
-#           status = "danger",
-#           tableOutput("Debug")
-#         ),
-#         box(
-#           title = "Debug 2",
-#           solidHeader = T,
-#           status = "danger",
-#           tableOutput("Debug2")
-#         )
-#       )
     ),
     tabPanel(
       title = "Longitudinal Data",
