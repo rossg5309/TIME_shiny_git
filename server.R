@@ -562,7 +562,7 @@ shinyServer(function(input, output, session) {
             sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
           }
           if(input$correl.act == TRUE){
-            sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+            sprintf("TIME_F1_%s_%s_%s_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
           }
         },
         content = function(file){
