@@ -549,16 +549,35 @@ shinyServer(function(input, output, session) {
         }
       }
       
+      # if(input$correl.act == FALSE){
+      # }
+      # if(input$correl.act == TRUE){
+      # }
+      
+      
       #Prepare plots for download
       output$dlgF1.plot <- downloadHandler(
         filename = function(){
-          sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          if(input$correl.act == FALSE){
+            sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          }
+          if(input$correl.act == TRUE){
+            sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          }
         },
-        content = function(file) {
-          gH <- 7
-          gW <- length(which(F1.summary.data$Generation == "F1")) * .625 + 2
-          ggsave(file, plot = gF1, width = gW, height = gH)
-        })
+        content = function(file){
+          if(input$correl.act == FALSE){
+            gH <- 7
+            gW <- length(which(F1.summary.data$Generation == "F1")) * .625 + 2
+            ggsave(file, plot = gF1, width = gW, height = gH)
+          }
+          if(input$correl.act == TRUE){
+            gH <- 7
+            gW <- 7
+            ggsave(file, plot = gF1.Correl, width = gW, height = gH)
+          }
+        }
+      )
       
       output$dlgF3.plot <- downloadHandler(
         filename = function(){
