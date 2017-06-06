@@ -5,6 +5,8 @@ ANOVA.shiny<-function(Data.Org, genID = "", sexID = "", Measure = "", Factor1, F
     Data.Org <- Data.Org[Data.Org$Sex == sexID,]
     Factor1 <- Factor2
     Factor2 <- ""
+    
+    SSType <- 2
   }
   
   Cur.Option<-getOption("contrasts")
