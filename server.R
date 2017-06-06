@@ -549,64 +549,89 @@ shinyServer(function(input, output, session) {
         }
       }
       
-      # if(input$correl.act == FALSE){
-      # }
-      # if(input$correl.act == TRUE){
-      # }
+      #Determine plot for download and set for output
+      if(input$correl.act == F) {
+        gF1.Plot <- gF1
+        gF3.Plot <- gF3
+        gF4.Plot <- gF4
+        gF6.Plot <- gF6
+      }
+      if(input$correl.act == T) {
+        if(exists("gF1.Correl")) {
+          gF1.Plot <- gF1.Correl
+        }
+        if(exists("gF3.Correl")) {
+          gF3.Plot <- gF3.Correl
+        }
+        if(exists("gF4.Correl")) {
+          gF4.Plot <- gF4.Correl
+        }
+        if(exists("gF6.Correl")) {
+          gF6.Plot <- gF6.Correl
+        }
+      }
+
+      #Determine plot name for file export
+      if(input$correl.act == F) {
+        gF1.Plot.Name <- sprintf("TIME_F1_%s_%s.eps", input$table.sel, input$measure.sel)
+        gF3.Plot.Name <- sprintf("TIME_F3_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+        gF4.Plot.Name <- sprintf("TIME_F4_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+        gF6.Plot.Name <- sprintf("TIME_F6_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+      }
+      if(input$correl.act == T) {
+        if(exists("gF1.Correl")) {
+          gF1.Plot.Name <- sprintf("TIME_F1_%s_%s_%s_%s_%s.eps", input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
+        }
+        if(exists("gF3.Correl")) {
+          gF3.Plot.Name <- sprintf("TIME_F3_%s_%s_%s_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
+        }
+        if(exists("gF4.Correl")) {
+          gF4.Plot.Name <- sprintf("TIME_F4_%s_%s_%s_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
+        }
+        if(exists("gF6.Correl")) {
+          gF6.Plot.Name <- sprintf("TIME_F6_%s_%s_%s_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
+        }
+      }
       
-      
-      #Prepare plots for download
+      #Send plots to download handlers for export
       output$dlgF1.plot <- downloadHandler(
         filename = function(){
-          if(input$correl.act == FALSE){
-            sprintf("TIME_F1_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
-          }
-          if(input$correl.act == TRUE){
-            sprintf("TIME_F1_%s_%s_%s_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel, input$correl.table.sel, input$correl.measure.sel, input$correl.sex.sel)
-          }
+          print(gF1.Plot.Name)
         },
-        content = function(file){
-          if(input$correl.act == FALSE){
-            gH <- 7
-            gW <- length(which(F1.summary.data$Generation == "F1")) * .625 + 2
-            ggsave(file, plot = gF1, width = gW, height = gH)
-          }
-          if(input$correl.act == TRUE){
-            gH <- 7
-            gW <- 7
-            ggsave(file, plot = gF1.Correl, width = gW, height = gH)
-          }
-        }
-      )
+        content = function(file) {
+          gH <- 7
+          gW <- length(which(F1.summary.data$Generation == "F1")) * .625 + 2
+          ggsave(file, plot = gF1.Plot, width = gW, height = gH)
+        })
       
       output$dlgF3.plot <- downloadHandler(
         filename = function(){
-          sprintf("TIME_F3_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          print(gF3.Plot.Name)
         },
         content = function(file) {
           gH <- 7
           gW <- length(which(F1.summary.data$Generation == "F3")) * .625 + 2
-          ggsave(file, plot = gF3, width = gW, height = gH)
+          ggsave(file, plot = gF3.Plot, width = gW, height = gH)
         })
       
       output$dlgF4.plot <- downloadHandler(
         filename = function(){
-          sprintf("TIME_F4_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          print(gF4.Plot.Name)
         },
         content = function(file) {
           gH <- 7
           gW <- length(which(F4.summary.data$Generation == "F4")) * .625 + 2
-          ggsave(file, plot = gF4, width = gW, height = gH)
+          ggsave(file, plot = gF4.Plot, width = gW, height = gH)
         })
       
       output$dlgF6.plot <- downloadHandler(
         filename = function(){
-          sprintf("TIME_F6_%s_%s_%s.eps", input$lineage.sel, input$table.sel, input$measure.sel)
+          print(gF6.Plot.Name)
         },
         content = function(file) {
           gH <- 7
           gW <- length(which(F4.summary.data$Generation == "F6")) * .625 + 2
-          ggsave(file, plot = gF6, width = gW, height = gH)
+          ggsave(file, plot = gF6.Plot, width = gW, height = gH)
         })
       
       #Load data of summary tables for download
