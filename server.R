@@ -10,7 +10,7 @@ library(car)
 #source(file = "server_plot_theme.R", local = T)
 source(file = "server_plot_function_colors_dots.R", local = T)
 source(file = "server_SQL_query.R", local = T)
-source(file = "server_ANOVA.R", local = T)
+source(file = "server_ANOVA_post_hocs.R", local = T)
 source(file = "server_data_cull.R", local = T)
 source(file = "server_plot_correlation.R", local = T)
 source(file = "server_plot_correlation_theme.R", local = T)
@@ -472,12 +472,14 @@ shinyServer(function(input, output, session) {
               Min.Count = Min.Group.N.F1
             )
             if(input$f1.sex.sel == ""){
-              AOV.F1.anova <- AOV.F1[-4, c(1,5,6,10)]
-              AOV.F1.diag <- AOV.F1[1, c(8,9)]
+              AOV.F1.anova <- AOV.F1$Results.AOV[-4, c(1,5,6,10)]
+              AOV.F1.diag <- AOV.F1$Results.AOV[1, c(8,9)]
+              AOV.F1.posthoc <- AOV.F1$Cur.HSD
             }
             if(input$f1.sex.sel != ""){
-              AOV.F1.anova <- AOV.F1[-2, c(1,5,6,10)]
-              AOV.F1.diag <- AOV.F1[1, c(8,9)]
+              AOV.F1.anova <- AOV.F1$Results.AOV[-2, c(1,5,6,10)]
+              AOV.F1.diag <- AOV.F1$Results.AOV[1, c(8,9)]
+              AOV.F1.posthoc <- AOV.F1$Cur.HSD
             }
           }
         }
@@ -494,12 +496,14 @@ shinyServer(function(input, output, session) {
               Min.Count = Min.Group.N.F3
             )
             if(input$f3.sex.sel == ""){
-              AOV.F3.anova <- AOV.F3[-4, c(1,5,6,10)]
-              AOV.F3.diag <- AOV.F3[1, c(8,9)]
+              AOV.F3.anova <- AOV.F3$Results.AOV[-4, c(1,5,6,10)]
+              AOV.F3.diag <- AOV.F3$Results.AOV[1, c(8,9)]
+              AOV.F3.posthoc <- AOV.F3$Cur.HSD
             }
             if(input$f3.sex.sel != ""){
-              AOV.F3.anova <- AOV.F3[-2, c(1,5,6,10)]
-              AOV.F3.diag <- AOV.F3[1, c(8,9)]
+              AOV.F3.anova <- AOV.F3$Results.AOV[-2, c(1,5,6,10)]
+              AOV.F3.diag <- AOV.F3$Results.AOV[1, c(8,9)]
+              AOV.F3.posthoc <- AOV.F3$Cur.HSD
             }
           }
         }
@@ -516,12 +520,14 @@ shinyServer(function(input, output, session) {
               Min.Count = Min.Group.N.F4
             )
             if(input$f4.sex.sel == ""){
-              AOV.F4.anova <- AOV.F4[-4, c(1,5,6,10)]
-              AOV.F4.diag <- AOV.F4[1, c(8,9)]
+              AOV.F4.anova <- AOV.F4$Results.AOV[-4, c(1,5,6,10)]
+              AOV.F4.diag <- AOV.F4$Results.AOV[1, c(8,9)]
+              AOV.F4.posthoc <- AOV.F4$Cur.HSD
             }
             if(input$f4.sex.sel != ""){
-              AOV.F4.anova <- AOV.F4[-2, c(1,5,6,10)]
-              AOV.F4.diag <- AOV.F4[1, c(8,9)]
+              AOV.F4.anova <- AOV.F4$Results.AOV[-2, c(1,5,6,10)]
+              AOV.F4.diag <- AOV.F4$Results.AOV[1, c(8,9)]
+              AOV.F4.posthoc <- AOV.F4$Cur.HSD
             }
           }
         }
@@ -538,12 +544,14 @@ shinyServer(function(input, output, session) {
               Min.Count = Min.Group.N.F6
             )
             if(input$f6.sex.sel == ""){
-              AOV.F6.anova <- AOV.F6[-4, c(1,5,6,10)]
-              AOV.F6.diag <- AOV.F6[1, c(8,9)]
+              AOV.F6.anova <- AOV.F6$Results.AOV[-4, c(1,5,6,10)]
+              AOV.F6.diag <- AOV.F6$Results.AOV[1, c(8,9)]
+              AOV.F6.posthoc <- AOV.F6$Cur.HSD
             }
             if(input$f6.sex.sel != ""){
-              AOV.F6.anova <- AOV.F6[-2, c(1,5,6,10)]
-              AOV.F6.diag <- AOV.F6[1, c(8,9)]
+              AOV.F6.anova <- AOV.F6$Results.AOV[-2, c(1,5,6,10)]
+              AOV.F6.diag <- AOV.F6$Results.AOV[1, c(8,9)]
+              AOV.F6.posthoc <- AOV.F6$Cur.HSD
             }
           }
         }
@@ -681,12 +689,19 @@ shinyServer(function(input, output, session) {
       #Render ANOVA table and diag outputs
       output$f1.anova <- renderTable(AOV.F1.anova)
       output$f1.diag <- renderTable(AOV.F1.diag)
+      output$f1.posthoc <- renderTable(AOV.F1.posthoc, rownames = TRUE)
+      
       output$f3.anova <- renderTable(AOV.F3.anova)
       output$f3.diag <- renderTable(AOV.F3.diag)
+      output$f3.posthoc <- renderTable(AOV.F3.posthoc, rownames = TRUE)
+      
       output$f4.anova <- renderTable(AOV.F4.anova)
       output$f4.diag <- renderTable(AOV.F4.diag)
+      output$f4.posthoc <- renderTable(AOV.F4.posthoc, rownames = TRUE)
+      
       output$f6.anova <- renderTable(AOV.F6.anova)
       output$f6.diag <- renderTable(AOV.F6.diag)
+      output$f6.posthoc <- renderTable(AOV.F6.posthoc, rownames = TRUE)
       
       #Render summary tables for output to UI
       output$F1.summary.data <- renderTable(F1.summary.data)
