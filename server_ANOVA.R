@@ -91,7 +91,8 @@ ANOVA.shiny<-function(Data.Org, genID = "", sexID = "", Measure = "", Factor1, F
   Cur.Row<-seq(from = 1, to = Rows.Results, by = 2^N.Factors)[1]
   End.Row<-2^N.Factors + Cur.Row - 1
   
-  Cur.AOV<-Anova(lm(AOV.Form, data = Data.Org), type = SSType)
+  Cur.AOV <- Anova(lm(AOV.Form, data = Data.Org), type = SSType)
+  Cur.HSD <- TukeyHSD(aov(AOV.Form, data = Data.Org))
   
   if(SSType == 2 | SSType == "II"){
     Results.AOV[Cur.Row:End.Row,2]<-Cur.AOV[2][[1]]
@@ -131,7 +132,7 @@ ANOVA.shiny<-function(Data.Org, genID = "", sexID = "", Measure = "", Factor1, F
   
   #Reset environment options
   options(contrasts=Cur.Option)
-  
+
   #Output
   return(Results.AOV)
 }
