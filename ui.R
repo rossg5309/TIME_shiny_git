@@ -117,7 +117,9 @@ body <- dashboardBody(
                             radioButtons(
                               inputId = "f1.sex.sel",
                               label = "Choose Sex:",
-                              choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+                              choices = c(
+                                "Combined Sex" = "", "Males" = "Male", "Females" = "Female"
+                              ),
                               inline = TRUE
                             )
                      )
@@ -127,6 +129,9 @@ body <- dashboardBody(
                    ),
                    fluidRow(
                      tableOutput("f1.diag")
+                   ),
+                   fluidRow(
+                     tableOutput("f1.posthoc")
                    )
           ),
           side = "left"
@@ -141,7 +146,9 @@ body <- dashboardBody(
                             radioButtons(
                               inputId = "f3.sex.sel",
                               label = "Choose Sex:",
-                              choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+                              choices = c(
+                                "Combined Sex" = "", "Males" = "Male", "Females" = "Female"
+                              ),
                               inline = TRUE
                             )
                      )
@@ -151,6 +158,9 @@ body <- dashboardBody(
                    ),
                    fluidRow(
                      tableOutput("f3.diag")
+                   ),
+                   fluidRow(
+                     tableOutput("f3.posthoc")
                    )
           ),
           side = "left"
@@ -176,7 +186,9 @@ body <- dashboardBody(
                             radioButtons(
                               inputId = "f4.sex.sel",
                               label = "Choose Sex:",
-                              choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+                              choices = c(
+                                "Combined Sex" = "", "Males" = "Male", "Females" = "Female"
+                              ),
                               inline = TRUE
                             )
                      )
@@ -186,6 +198,9 @@ body <- dashboardBody(
                    ),
                    fluidRow(
                      tableOutput("f4.diag")
+                   ),
+                   fluidRow(
+                     tableOutput("f4.posthoc")
                    )
           ),
           side = "left"
@@ -199,7 +214,9 @@ body <- dashboardBody(
                             radioButtons(
                               inputId = "f6.sex.sel",
                               label = "Choose Sex:",
-                              choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
+                              choices = c(
+                                "Combined Sex" = "", "Males" = "Male", "Females" = "Female"
+                              ),
                               inline = TRUE
                             )
                      )
@@ -209,6 +226,9 @@ body <- dashboardBody(
                    ),
                    fluidRow(
                      tableOutput("f6.diag")
+                   ),
+                   fluidRow(
+                     tableOutput("f6.posthoc")
                    )
           ),
           side = "left"
