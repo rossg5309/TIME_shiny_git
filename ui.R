@@ -56,7 +56,7 @@ sidebar <- dashboardSidebar(
         inputId = "groups.sel.F1",
         label = "Select F1-F3 Groups",
         choices = c("6% DMSO", "100% DMSO", "Estradiol", "A1221", "Low Vin", "High Vin", "Flutamide"),
-        selected = c("6% DMSO", "A1221", "Low Vin", "High Vin")
+        selected = c("6% DMSO", "A1221", "Low Vin")
       ),
       checkboxGroupInput(
         inputId = "groups.sel.F4",
