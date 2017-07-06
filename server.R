@@ -14,6 +14,7 @@ source(file = "server_ANOVA_post_hocs.R", local = T)
 source(file = "server_data_cull.R", local = T)
 source(file = "server_plot_correlation.R", local = T)
 source(file = "server_plot_correlation_theme.R", local = T)
+source(file = "server_stat_corr.R", local = T)
 
 #Find available tables on the database
 Table.List <- SQL_db_query(query = "SHOW TABLES")
