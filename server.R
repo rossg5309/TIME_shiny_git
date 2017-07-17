@@ -51,12 +51,6 @@ shinyServer(function(input, output, session) {
             choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
             inline = FALSE
           ),
-#           radioButtons(
-#             inputId = "correl.method.sel",
-#             label = "Choose Method:",
-#             choices = c("Pearson" = "pearson", "Spearman" = "spearman"),
-#             inline = FALSE
-#           ),
           selectInput(
             inputId <- "correl.table.sel",
             label = "Data Set",
@@ -353,28 +347,24 @@ shinyServer(function(input, output, session) {
           yDat = Data.Set.Correl,
           genID = "F1",
           sexID = input$correl.sex.sel
-          # Corr.Method = input$correl.method.sel
         )
         Correl.F3.stat <- Correl.stat(
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F3",
           sexID = input$correl.sex.sel
-          # Corr.Method = input$correl.method.sel
         )
         Correl.F4.stat <- Correl.stat(
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F4",
           sexID = input$correl.sex.sel
-          # Corr.Method = input$correl.method.sel
         )
         Correl.F6.stat <- Correl.stat(
           xDat = Data.Set,
           yDat = Data.Set.Correl,
           genID = "F6",
           sexID = input$correl.sex.sel
-          # Corr.Method = input$correl.method.sel
         )
       }
       
