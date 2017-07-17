@@ -134,6 +134,14 @@ body <- dashboardBody(
                      tableOutput("f1.posthoc")
                    )
           ),
+          tabPanel("Correlation",
+                   fluidRow(
+                     column(12, align = "center")
+                   ),
+                   fluidRow(
+                     tableOutput("f1.correl.stat")
+                   )
+          ),
           side = "left"
         ),
         tabBox(
@@ -161,6 +169,14 @@ body <- dashboardBody(
                    ),
                    fluidRow(
                      tableOutput("f3.posthoc")
+                   )
+          ),
+          tabPanel("Correlation",
+                   fluidRow(
+                     column(12, align = "center")
+                   ),
+                   fluidRow(
+                     tableOutput("f3.correl.stat")
                    )
           ),
           side = "left"
@@ -203,6 +219,14 @@ body <- dashboardBody(
                      tableOutput("f4.posthoc")
                    )
           ),
+          tabPanel("Correlation",
+                   fluidRow(
+                     column(12, align = "center")
+                   ),
+                   fluidRow(
+                     tableOutput("f4.correl.stat")
+                   )
+          ),
           side = "left"
         ),
         tabBox(
@@ -231,6 +255,14 @@ body <- dashboardBody(
                      tableOutput("f6.posthoc")
                    )
           ),
+          tabPanel("Correlation",
+                   fluidRow(
+                     column(12, align = "center")
+                   ),
+                   fluidRow(
+                     tableOutput("f6.correl.stat")
+                   )
+          ),
           side = "left"
         )
       ),
@@ -250,20 +282,20 @@ body <- dashboardBody(
           downloadButton('dlF4.Summary', "Download F4-F6 Summary Data")
         )
       )
-      # fluidRow(
-      #   box(
-      #     title = "Debug",
-      #     solidHeader = T,
-      #     status = "danger",
-      #     tableOutput("Debug")
-      #   ),
-      #   box(
-      #     title = "Debug 2",
-      #     solidHeader = T,
-      #     status = "danger",
-      #     tableOutput("Debug2")
-      #   )
-      # )
+#       fluidRow(
+#         box(
+#           title = "Debug",
+#           solidHeader = T,
+#           status = "danger",
+#           tableOutput("Debug")
+#         ),
+#         box(
+#           title = "Debug 2",
+#           solidHeader = T,
+#           status = "danger",
+#           tableOutput("Debug2")
+#         )
+#       )
     ),
     tabPanel(
       title = "Longitudinal Data",
