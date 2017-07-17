@@ -1,4 +1,4 @@
-gplotFunction.Correl <- function(xDat, yDat, genID = "", sexID = "", ColInput, NameInput, xLim = "", yLim = ""){
+Correl.stat <- function(xDat, yDat, genID = "", sexID = "", ColInput, NameInput, xLim = "", yLim = "", Corr.Method = "pearson"){
   xDat <- xDat[which(xDat$Animal %in% yDat$Animal),]
   yDat <- yDat[which(yDat$Animal %in% xDat$Animal),]
   
@@ -26,19 +26,31 @@ gplotFunction.Correl <- function(xDat, yDat, genID = "", sexID = "", ColInput, N
   Data.Plot <- cbind(xDat[,1:7], yDat[,7], xDat[,8])
   names(Data.Plot)[8:9] <- c(names(yDat[7]), names(xDat[8]))
   
-  #Begin plotting
-  #Set regression data set
-  gM <- ggplot(Data.Plot ,aes(x = Data.Plot[,7], y = Data.Plot[,8], color = Data.Plot$GraphID))
-  gM <- gM + scale_color_manual(name = "", values = ColInput, labels = NameInput)
-  gM <- gM + geom_smooth(method = lm, se = F, linetype = 8)
-  #Set point data set
-  gM <- gM + geom_point(mapping = aes(x = Data.Plot[,7], y = Data.Plot[,8], fill = Data.Plot$GraphID),shape = 21, size = 3, color = "black")
-  gM <- gM + scale_fill_manual(name = "", values = ColInput, labels = NameInput)
-  #Alter Aesthetics
-  gM <- gM + theme_graph_correlation
-  gM <- gM + ylab(yDat.Name) + xlab(xDat.Name) + ggtitle(paste(sexName, "s", sep = ""))
-  gM <-gM + scale_y_continuous(expand = c(0,0), limits = yLim)
-  gM <-gM + scale_x_continuous(expand = c(0,0), limits = xLim)
+  Unique.Groups <- as.character(sort(unique(Data.Plot$GraphID)))
   
-  return(gM)
+  Corr.Results <- matrix(data = NA, nrow = length(Unique.Groups), ncol = 4)
+  Corr.Results <- data.frame(Corr.Results)
+  names(Corr.Results) <- c('Group', 'r', 'N', 'p-value')
+  
+  for(i in 1:length(Unique.Groups)){
+    Group <- Unique.Groups[i]
+    
+    Corr.Results[i,1] <- Group
+    
+    Cur.xDat <- Data.Plot[which(Data.Plot$GraphID == Group),7]
+    Cur.yDat <- Data.Plot[which(Data.Plot$GraphID == Group),8]
+    
+    if(length(Cur.xDat >= 5)){
+      Cur.rcorr <- rcorr(Cur.xDat, Cur.yDat, type = Corr.Method)
+      Corr.Results[i, 2] <- round(rcorr(Cur.xDat, Cur.yDat)$r[2], digits = 4)
+      Corr.Results[i, 3] <- round(rcorr(Cur.xDat, Cur.yDat)$n[2], digits = 4)
+      Corr.Results[i, 4] <- round(rcorr(Cur.xDat, Cur.yDat)$P[2], digits = 4)
+    } else if (length(Cur.xDat <= 4)) {
+      Corr.Results[i, 2] <- "NA"
+      Corr.Results[i, 3] <- "NA"
+      Corr.Results[i, 4] <- "NA"
+    }
+  }
+  
+  return(Corr.Results)
 }
