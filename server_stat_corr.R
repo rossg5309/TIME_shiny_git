@@ -40,14 +40,15 @@ Correl.stat <- function(xDat, yDat, genID = "", sexID = "", ColInput, NameInput,
     Cur.xDat <- Data.Plot[which(Data.Plot$GraphID == Group),7]
     Cur.yDat <- Data.Plot[which(Data.Plot$GraphID == Group),8]
     
-    if(length(Cur.xDat >= 5)){
+    if(length(Cur.xDat) >= 5){
       Cur.rcorr <- rcorr(Cur.xDat, Cur.yDat, type = Corr.Method)
       Corr.Results[i, 2] <- round(rcorr(Cur.xDat, Cur.yDat)$r[2], digits = 4)
       Corr.Results[i, 3] <- round(rcorr(Cur.xDat, Cur.yDat)$n[2], digits = 4)
       Corr.Results[i, 4] <- round(rcorr(Cur.xDat, Cur.yDat)$P[2], digits = 4)
-    } else if (length(Cur.xDat <= 4)) {
+    }
+    if(length(Cur.xDat) <= 4) {
       Corr.Results[i, 2] <- "NA"
-      Corr.Results[i, 3] <- "NA"
+      Corr.Results[i, 3] <- "<4"
       Corr.Results[i, 4] <- "NA"
     }
   }
