@@ -5,6 +5,7 @@ library(ggplot2)
 library(RMySQL)
 library(lsr)
 library(car)
+library(Hmisc)
 
 #Source local scripts
 #source(file = "server_plot_theme.R", local = T)
@@ -50,6 +51,12 @@ shinyServer(function(input, output, session) {
             choices = c("Combined Sex" = "", "Males" = "Male", "Females" = "Female"),
             inline = FALSE
           ),
+#           radioButtons(
+#             inputId = "correl.method.sel",
+#             label = "Choose Method:",
+#             choices = c("Pearson" = "pearson", "Spearman" = "spearman"),
+#             inline = FALSE
+#           ),
           selectInput(
             inputId <- "correl.table.sel",
             label = "Data Set",
@@ -338,6 +345,36 @@ shinyServer(function(input, output, session) {
           NameInput = gg.Guide.Names.F6,
           xLim = XLimit.Correl,
           yLim = YLimit.Correl
+        )
+        
+        #Run Stats for correlations
+        Correl.F1.stat <- Correl.stat(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F1",
+          sexID = input$correl.sex.sel
+          # Corr.Method = input$correl.method.sel
+        )
+        Correl.F3.stat <- Correl.stat(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F3",
+          sexID = input$correl.sex.sel
+          # Corr.Method = input$correl.method.sel
+        )
+        Correl.F4.stat <- Correl.stat(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F4",
+          sexID = input$correl.sex.sel
+          # Corr.Method = input$correl.method.sel
+        )
+        Correl.F6.stat <- Correl.stat(
+          xDat = Data.Set,
+          yDat = Data.Set.Correl,
+          genID = "F6",
+          sexID = input$correl.sex.sel
+          # Corr.Method = input$correl.method.sel
         )
       }
       
@@ -704,6 +741,12 @@ shinyServer(function(input, output, session) {
       output$f6.diag <- renderTable(AOV.F6.diag)
       output$f6.posthoc <- renderTable(AOV.F6.posthoc, rownames = TRUE)
       
+      #Render Correlation Results Table and output
+      output$f1.correl.stat <- renderTable(Correl.F1.stat)
+      output$f3.correl.stat <- renderTable(Correl.F3.stat)
+      output$f4.correl.stat <- renderTable(Correl.F4.stat)
+      output$f6.correl.stat <- renderTable(Correl.F6.stat)
+      
       #Render summary tables for output to UI
       output$F1.summary.data <- renderTable(F1.summary.data)
       output$F4.summary.data <- renderTable(F4.summary.data)
@@ -730,7 +773,7 @@ shinyServer(function(input, output, session) {
       }
       
       #Debug Output
-      # output$Debug <- renderTable()
+      # output$Debug <- renderTable(input$correl.method.sel)
       # output$Debug2 <- renderTable()
       
     }
